@@ -3,40 +3,36 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>验证中...</title>
+    <title>验证中</title>
     <style>
-        body{display:flex;justify-content:center;align-items:center;height:100vh;background:#f5f5f5;font-family:Arial,sans-serif;}
-        .box{text-align:center;padding:30px;background:#fff;border-radius:12px;box-shadow:0 2px 10px #0002;}
-        .ok{color:#28a745;font-size:20px;}
-        .err{color:#dc3545;font-size:20px;}
+        body{display:flex;justify-content:center;align-items:center;height:100vh;background:#fff;font-family:Arial,sans-serif;}
+        .box{text-align:center;padding:30px;}
+        .ok{color:#00a63d;font-size:18px;}
+        .fail{color:#f44336;font-size:18px;}
     </style>
 </head>
 <body>
-<div class="box" id="msg">验证中...</div>
+<div class="box" id="msg"></div>
 
 <script>
-    const urlParams = new URLSearchParams(window.location.search);
-    const t = parseInt(urlParams.get("t"));
-    const k = urlParams.get("k");
-    const r = urlParams.get("r");
-    const now = Date.now();
-    const expire = 30 * 1000; // 30秒有效期
+    const params = new URLSearchParams(location.search);
+    const slot = params.get("slot");
+    const url = params.get("url");
+    const msg = document.getElementById("msg");
 
-    // 从本地取出当前有效key（和展示页同源，可共享localStorage）
-    const validKey = localStorage.getItem("validKey");
-    const validTime = parseInt(localStorage.getItem("validTime")) || 0;
+    // 当前时间段（30秒）
+    const nowSlot = Math.floor(Date.now() / 30000).toString();
 
-    const msgEl = document.getElementById("msg");
-
-    if (!t || !k || !r) {
-        msgEl.innerHTML = `<div class="err">参数错误</div>`;
-    } else if (now - t > expire) {
-        msgEl.innerHTML = `<div class="err">二维码已过期，请刷新</div>`;
-    } else if (k !== validKey || t < validTime) {
-        msgEl.innerHTML = `<div class="err">二维码已失效，请刷新</div>`;
-    } else {
-        msgEl.innerHTML = `<div class="ok">验证通过，跳转中...</div>`;
-        setTimeout(() => window.location.href = decodeURIComponent(r), 800);
+    if (!slot || !url) {
+        msg.innerHTML = '<div class="fail">二维码无效</div>';
+    }
+    // 只允许当前30秒的码有效
+    else if (slot === nowSlot) {
+        msg.innerHTML = '<div class="ok">验证成功，正在跳转...</div>';
+        setTimeout(()=>location.href = decodeURIComponent(url), 700);
+    }
+    else {
+        msg.innerHTML = '<div class="fail">二维码已过期，请刷新页面</div>';
     }
 </script>
 </body>

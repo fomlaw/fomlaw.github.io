@@ -3,41 +3,42 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>动态有效二维码</title>
+    <title>动态二维码</title>
     <style>
         *{margin:0;padding:0;box-sizing:border-box;}
-        body{display:flex;justify-content:center;align-items:center;min-height:100vh;background:#f5f5f5;flex-direction:column;}
-        #qrcode{width:300px;height:300px;margin-bottom:20px;}
-        .tip{font-size:16px;color:#666;}
+        body{display:flex;justify-content:center;align-items:center;min-height:100vh;background:#fff;flex-direction:column;}
+        #qrcode{width:320px;height:320px;margin-bottom:20px;}
+        .tip{font-size:16px;color:#666;margin-top:10px;}
     </style>
 </head>
 <body>
     <div id="qrcode"></div>
-    <div class="tip">二维码每30秒刷新一次，旧码立即失效</div>
+    <div class="tip">二维码每30秒刷新一次，旧码自动失效</div>
 
     <script>
-        const baseUrl = "https://fomlaw.github.io/verify.html"; // 改成你的
-        const targetUrl = "https://jr.ctrip.com/m/adno/page/hotelBusinessLoan?isHideNavBar=YES&disable_redirect_https=1&mktype=CYJRJDJYD1";
-        let currentKey = "";
+        // 你的 GitHub 地址 + verify.html
+        const verifyPage = "https://fomlaw.github.io/verify.html";
+        
+        // 最终要跳转的携程链接
+        const realUrl = "https://jr.ctrip.com/m/adno/page/hotelBusinessLoan?isHideNavBar=YES&disable_redirect_https=1&mktype=CYJRJDJYD1";
 
-        function randomKey() {
-            return Math.random().toString(36).slice(2) + Date.now().toString(36);
+        // 生成当前时间段的标识（30秒一个段）
+        function getTimeSlot(){
+            return Math.floor(Date.now() / 30000).toString();
         }
 
-        function refreshQrcode() {
-            const t = Date.now();
-            currentKey = randomKey();
-            // 二维码指向验证页，带时效+密钥
-            const link = `${baseUrl}?t=${t}&k=${currentKey}&r=${encodeURIComponent(targetUrl)}`;
-            const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(link)}`;
-            document.getElementById("qrcode").innerHTML = `<img src="${qrUrl}" alt="动态二维码">`;
-            // 存当前有效key到本地（临时）
-            localStorage.setItem("validKey", currentKey);
-            localStorage.setItem("validTime", t);
+        function refresh(){
+            const slot = getTimeSlot();
+            const qrContent = `${verifyPage}?slot=${slot}&url=${encodeURIComponent(realUrl)}`;
+            
+            const qrImg = "https://api.qrserver.com/v1/create-qr-code/?" +
+                "size=320x320&margin=4&data=" + encodeURIComponent(qrContent);
+
+            document.getElementById("qrcode").innerHTML = `<img src="${qrImg}">`;
         }
 
-        refreshQrcode();
-        setInterval(refreshQrcode, 30000); // 30秒
+        refresh();
+        setInterval(refresh, 30000);
     </script>
 </body>
 </html>

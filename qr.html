@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>自动刷新二维码</title>
+    <style>
+        * {
+            margin: 0; padding: 0; box-sizing: border-box;
+        }
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: #f5f5f5;
+            flex-direction: column;
+        }
+        #qrcode {
+            width: 300px;
+            height: 300px;
+            margin-bottom: 20px;
+        }
+        .tip {
+            font-size: 16px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div id="qrcode"></div>
+    <div class="tip">二维码每 30 秒自动刷新</div>
+
+    <script>
+        // 你要跳转的固定链接
+        const targetUrl = "https://jr.ctrip.com/m/adno/page/hotelBusinessLoan?isHideNavBar=YES&disable_redirect_https=1&mktype=CYJRJDJYD1";
+
+        function refreshQrcode() {
+            const timestamp = new Date().getTime();
+            // 免费公共接口生成二维码
+            const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(targetUrl)}&t=${timestamp}`;
+            document.getElementById("qrcode").innerHTML = `<img src="${qrUrl}" alt="动态二维码">`;
+        }
+
+        // 首次加载
+        refreshQrcode();
+        // 每 30 秒刷新一次
+        setInterval(refreshQrcode, 30000);
+    </script>
+</body>
+</html>
